@@ -1,0 +1,32 @@
+ROOM
+	ID 777
+	NAME "Heaven’s Gate"
+	PICT "Heaven.gif"
+	ARTIST "Elaine \Alderette"
+	DOOR
+		ID 1
+		DEST 103
+		OUTLINE 0,309 512,313 512,384 0,384
+	ENDDOOR
+	SPOT
+		ID 2
+		OUTLINE 35,35 96,35 94,76 34,77
+		SCRIPT
+			ON ENTER {
+				"FazeIn" SOUND
+				CLEARPROPS
+				"Halo" DONPROP
+				8 SETCOLOR
+			}
+		ENDSCRIPT
+	ENDSPOT
+	SPOT
+		ID 3
+		OUTLINE 387,24 444,21 437,57 390,51
+		SCRIPT
+			ON SELECT {
+				"palace://mansion.thepalace.com:1313" NETGOTO
+			}
+		ENDSCRIPT
+	ENDSPOT
+ENDROOM

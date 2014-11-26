@@ -1,0 +1,874 @@
+;
+; (c) Blue Lady <noname@virtual.dyc.edu>, 1999
+; All Rights Reserved.  No part of this document can be copied in
+; part or in whole without the expressed permission of the author
+; in writing.
+;
+; Version date 4/8/99
+;
+; Modified 9/11/99
+;	- Indentations was added.
+;	- reserved itpscrae words were capitalized.
+;	- reprogramable empty atoms were added.
+;
+; Fido Cyborg.ipt
+;
+
+
+
+ON SIGNON {
+
+;*******************************************************************
+;********************* Global Variables ****************************
+;*******************************************************************
+;
+; master = the name of the Master (in lower case)
+; thisdog = the name of ThisDog (in lower case)
+; otherdog = the name of the OtherDog  (in lower case)
+; jittering = 1 if jittering is on, 0 otherwise
+; reportid = the Master's user id number when reporting is on, 0 otherwise
+; detailid = the Master's user id number when detailing is on, 0 otherwise
+; commandstr = command string to the OtherDog when relaying
+; returnroom = room to return to when relaying to the OtherDog
+; wandering = 1 in wandering mode, 0 otherwise
+; staying = 1 if someone has asked ThisDog to stay in wandering mode, 0 otherwise
+; lctime = last time ThisDog's name was said when wandering and staying are on
+;
+
+	master     GLOBAL
+	thisdog    GLOBAL
+	otherdog   GLOBAL
+	jittering  GLOBAL
+	reportid   GLOBAL
+	detailid   GLOBAL
+	commandstr GLOBAL
+	returnroom GLOBAL
+	wandering  GLOBAL
+	staying    GLOBAL
+	lctime     GLOBAL
+
+	"blue lady" master =
+	"fido"      thisdog =
+	"rex"       otherdog =
+
+	0 jittering =
+	0 reportid =
+	0 detailid =
+
+	"" commandstr =
+	0 returnroom =
+
+	0 wandering =
+	0 staying =
+	0 lctime =
+
+; run0 - 10 = the 10 flags for executing the repogrammed atoms in ON INCHAT
+
+	run0 GLOBAL 0 run0 =
+	run1 GLOBAL 0 run1 =
+	run2 GLOBAL 0 run2 =
+	run3 GLOBAL 0 run3 =
+	run4 GLOBAL 0 run4 =
+	run5 GLOBAL 0 run5 =
+	run6 GLOBAL 0 run6 =
+	run7 GLOBAL 0 run7 =
+	run8 GLOBAL 0 run8 =
+	run9 GLOBAL 0 run9 =
+
+;*******************************************************************
+;********************* Global Atoms ********************************
+;*******************************************************************
+;
+; program0 - 9 = 10 empty atoms for reprogramming via allscrae backdoor
+; 	1. These may only be defined via the allscrae backdoor.  They may be executed
+;	via the allscrae backdoor, or via turning on the flags, in the ON INCHAT section.
+;	2. If flag run0 is on, i.e. equal to 1, then in the ON INCHAT section,
+;		{ program0 EXEC } run0 IF
+;	will run each time the bot hears something.  Careful with this!
+;   If you define program1 as
+;		{ "hehe" SAY } lowchat "sayit" == IF
+;	which you do via the allscrae backdoor by issuing the command
+;		fido allscrae { { "hehe" SAY } lowchat "sayit" == IF } program1 DEF
+;	then each time the bot hears the words "sayit" it will respond with "hehe".
+;
+; randroom = go to a random room selected from a predefined array
+;
+
+	program0 GLOBAL { { "0 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program0 DEF
+	program1 GLOBAL { { "1 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program1 DEF
+	program2 GLOBAL { { "2 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program2 DEF
+	program3 GLOBAL { { "3 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program3 DEF
+	program4 GLOBAL { { "4 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program4 DEF
+	program5 GLOBAL { { "5 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program5 DEF
+	program6 GLOBAL { { "6 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program6 DEF
+	program7 GLOBAL { { "7 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program7 DEF
+	program8 GLOBAL { { "8 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program8 DEF
+	program9 GLOBAL { { "9 empty" SAY } lowchat "ptest" SUBSTR namesaid AND IF } program9 DEF
+
+	randroom GLOBAL
+
+	{
+;
+; ***** Virtual *****
+;
+		[ 86 87 88 89 90 97 98 99 117 240 ] roomarray =
+;
+; ***** Paradox *****
+;
+;[ 156 157 158 159 160 161 162 163
+;  164 165 166 167 168 169 170 171
+;  172 173 174 175 176 177 178 179
+;  180 181 182 183 184 185 188 191 ] roomarray =
+;
+		ROOMID target =
+		{ roomarray roomarray LENGTH RANDOM GET target = }
+		{ ROOMID target == } WHILE
+		target GOTOROOM
+	} randroom DEF
+
+;*******************************************************************
+;********************* End Globals *********************************
+;*******************************************************************
+
+;
+; ***** Set the avatar to FidoRight *****
+;
+
+	0 SETFACE
+	0 SETCOLOR
+	[ -1296190269 ] SETPROPS
+
+}
+
+
+
+
+
+ON INCHAT {
+
+;*******************************************************************
+;********************* Global Variables ****************************
+;*******************************************************************
+
+	master     GLOBAL
+	thisdog    GLOBAL
+	otherdog   GLOBAL
+	jittering  GLOBAL
+	reportid   GLOBAL
+	detailid   GLOBAL
+	commandstr GLOBAL
+	returnroom GLOBAL
+	wandering  GLOBAL
+	staying    GLOBAL
+	lctime     GLOBAL
+
+	run0 GLOBAL
+	run1 GLOBAL
+	run2 GLOBAL
+	run3 GLOBAL
+	run4 GLOBAL
+	run5 GLOBAL
+	run6 GLOBAL
+	run7 GLOBAL
+	run8 GLOBAL
+	run9 GLOBAL
+
+;*******************************************************************
+;********************* Global Atoms ********************************
+;*******************************************************************
+
+	program0 GLOBAL
+	program1 GLOBAL
+	program2 GLOBAL
+	program3 GLOBAL
+	program4 GLOBAL
+	program5 GLOBAL
+	program6 GLOBAL
+	program7 GLOBAL
+	program8 GLOBAL
+	program9 GLOBAL
+	randroom GLOBAL
+
+;*******************************************************************
+;********************* End Globals *********************************
+;*******************************************************************
+
+;
+; ***** Initialize important INCHAT variables *****
+;
+; lowchat = CHATSTR in lower case
+;
+; namesaid = 1 if the name of ThisDog has been said, 0 otherwise
+;   Note namesaid = 0 if there is a ":" in the string - this serves two purposes:
+;     1. Without the ":", feedback occurs during detailing because ThisDog hears its own
+;        name said by itself when it details and so it details its own detailing!  Since
+;        the detailing string is constructed containing a ":", ThisDog does not recognize
+;        that string as containing its own name, and so stops the feedback.
+;     2. The ":" also stops the relay string from being interpreted as a command to be
+;        executed by ThisDog when, in fact, it is intended as a command to be relayed
+;        to the OtherDog and executed by it.  The ":" is greped out for the other dog.
+;
+; masterspoke = 1 if The Master or the OtherDog just spoke, 0 otherwise
+;
+
+	CHATSTR LOWERCASE lowchat =
+
+	lowchat thisdog SUBSTR
+		lowchat ":" SUBSTR NOT AND namesaid =
+
+	WHOCHAT WHONAME LOWERCASE master ==
+		WHOCHAT WHONAME LOWERCASE otherdog == OR masterspoke =
+
+
+;*******************************************************************
+;********************* Public Commands *****************************
+;*******************************************************************
+;
+; ***** help command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		"Just say my name and anyone of the following words in the same sentence:"
+		" good, bad, sit, come, go to + username, move, play, speak, beg, roll, " &
+		"count to + number" & WHOCHAT PRIVATEMSG
+
+	} lowchat "help" SUBSTR namesaid AND IF
+
+
+;
+; ***** good command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190405 -1296190269 ] SETPROPS }
+		{ [ -1296190405 -1296190228 ] SETPROPS } righton IFELSE
+
+		"woof" SAY
+
+	} lowchat "good" SUBSTR namesaid AND IF
+
+
+;
+; ***** bad command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296170648 -1296190269 ] SETPROPS }
+		{ [ -1296171357 -1296190228 ] SETPROPS } righton IFELSE
+
+		"woof" SAY
+
+	} lowchat "bad" SUBSTR namesaid AND IF
+
+
+;
+;
+; ***** sit command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		"woof" SAY
+
+	} lowchat "sit" SUBSTR namesaid AND IF
+
+
+;
+; ***** come command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		WHOCHAT target =
+		target WHOPOS y =
+		target WHOPOS SWAP x =
+		x y 50 + SETPOS
+
+		"woof" SAY
+
+	} lowchat "come" SUBSTR namesaid AND IF
+
+
+;
+; ***** go to user command *****
+;
+	{
+		"$1" GREPSUB LOWERCASE targetname =
+		0 targetuser =
+		0 i =
+
+		{
+			i ROOMUSER currentuser =
+			currentuser WHONAME LOWERCASE currentname =
+			currentname targetname SUBSTR currentuser WHOME <> AND okay =
+			{ currentuser targetuser = } okay IF
+			i ++
+		} { i nbrroomusers < } WHILE
+
+		{
+			-1296190269 TOPPROP == righton =
+			{ [ -1296190269 ] SETPROPS }
+			{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+			targetuser WHOPOS y =
+			targetuser WHOPOS SWAP x =
+			x y 50 + SETPOS
+
+			"woof" SAY
+
+		} targetuser 0 <> IF
+
+	} lowchat "go to (.*)" GREPSTR namesaid AND IF
+
+
+;
+; ***** move command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		512 RANDOM 384 RANDOM SETPOS
+
+		"woof" SAY
+
+	} lowchat "move" SUBSTR namesaid AND IF
+
+
+;
+; ***** play command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		{ POP 512 RANDOM 384 RANDOM SETPOS } [ 1 2 3 4 5 6 7 8 9 10 ] FOREACH
+
+		"woof" SAY
+
+	} lowchat "play" SUBSTR namesaid AND IF
+
+
+;
+; ***** speak command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		"woof woof " WHOCHAT WHONAME & " woof woof woof" & SAY
+
+	} lowchat "speak" SUBSTR namesaid AND IF
+
+
+;
+; ***** beg command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190405 -1296190269 ] SETPROPS }
+		{ [ -1296190405 -1296190228 ] SETPROPS } righton IFELSE
+
+		WHOCHAT target =
+		target WHOPOS y =
+		target WHOPOS SWAP x =
+
+		x y 100 + SETPOS
+		x y 90 + SETPOS
+		x y 80 + SETPOS
+		x y 70 + SETPOS
+		x y 60 + SETPOS
+		x y 50 + SETPOS
+		x y 40 + SETPOS
+		x y 30 + SETPOS
+
+		"!whhhhhhhhhhhine" SAY
+
+	} lowchat "beg" SUBSTR namesaid AND IF
+
+
+;
+; ***** roll command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+
+		[ -1296190228 ] SETPROPS
+		[ -1296190269 ] SETPROPS
+		[ -1296190228 ] SETPROPS
+		[ -1296190269 ] SETPROPS
+		[ -1296190228 ] SETPROPS
+		[ -1296190269 ] SETPROPS
+		[ -1296190228 ] SETPROPS
+		[ -1296190269 ] SETPROPS
+		[ -1296190228 ] SETPROPS
+		[ -1296190269 ] SETPROPS
+
+		{ [ -1296190228 ] SETPROPS } righton IF
+
+		"woof" SAY
+
+	} lowchat "roll" SUBSTR namesaid AND IF
+
+
+;
+; ***** count command *****
+;
+	{
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+		"$1" GREPSUB " thenumber =" & STRTOATOM EXEC
+
+		{
+			"" woofstring =
+			0 i =
+			{ woofstring "woof " & woofstring = i ++}{ thenumber i > } WHILE
+		}{
+			"woof eh?" woofstring =
+		} thenumber 0 > thenumber 10 <= AND IFELSE
+
+		woofstring SAY
+
+	} lowchat "count to ([0-9]+)" GREPSTR namesaid AND IF
+
+
+;*******************************************************************
+;************************* Attack Command **************************
+;*******************************************************************
+	{
+		"$1" GREPSUB LOWERCASE targetname =
+		0 targetuser =
+		0 i =
+
+		{
+			i ROOMUSER currentuser =
+			currentuser WHONAME LOWERCASE currentname =
+			currentname targetname SUBSTR currentuser WHOME <> AND okay =
+			{ currentuser targetuser = } okay IF
+			i ++
+		} { i nbrroomusers < } while
+
+		{
+			targetuser WHOPOS y =
+			targetuser WHOPOS SWAP x =
+			x y SETPOS
+			-1296190269 TOPPROP == righton =
+			{ [ -1296170648 -1296190269 ] SETPROPS }
+			{ [ -1296171357 -1296190228 ] SETPROPS } righton IFELSE
+			"!rrrrrrrrrrr" SAY
+		} targetuser 0 <> IF
+
+	} lowchat "attack (.*)" GREPSTR namesaid AND masterspoke AND IF
+
+
+;*******************************************************************
+;********************** Jittering self-command *********************
+;*******************************************************************
+;
+; ***** Turn jittering on *****
+;
+	{
+		1 jittering =
+		"woof" SAY
+		{ ":" SAY } 400 ALARMEXEC
+	} lowchat "jittering" SUBSTR lowchat "on" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Turn jittering off *****
+;
+	{
+		0 jittering =
+		"woof" SAY
+	} lowchat "jittering" SUBSTR lowchat "off" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Execute Jittering *****
+;
+	{
+		{ ":" SAY } 400 ALARMEXEC
+
+		-1296190269 TOPPROP == righton =
+		{ [ -1296190269 ] SETPROPS }
+		{ [ -1296190228 ] SETPROPS } righton not IFELSE
+
+		100 RANDOM 50 - 100 RANDOM 50 - MOVE
+
+	} lowchat ":" == WHOME WHOCHAT == AND jittering AND IF
+
+
+;*******************************************************************
+;********************** Reporting Commands *************************
+;*******************************************************************
+;
+; Reporting informs the Master via PRIVATEMSG of any roomchanges ThisDog makes
+;
+; ***** Get the Master's userid and turn reporting on *****
+;
+	{
+		0 i =
+			{
+				i ROOMUSER target =
+				{ target reportid = } target WHONAME LOWERCASE master == IF
+				i ++
+			}{ i nbrroomusers < } WHILE
+		"woof" SAY
+	} lowchat "reporting" SUBSTR lowchat "on" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Turn reporting off
+;
+	{
+		0 reportid =
+		"woof" SAY
+	} lowchat "reporting" SUBSTR lowchat "off" SUBSTR AND namesaid AND masterspoke AND IF
+
+
+;*******************************************************************
+;********************** Detailing Commands *************************
+;*******************************************************************
+;
+; Detailing informs the Master via PRIVATEMSG of what is said to/about ThisDog
+;
+; ***** Get the Master's userid and turn detailing on *****
+;
+	{
+		0 i =
+		{
+			i ROOMUSER target =
+			{ target detailid = } target WHONAME LOWERCASE master == IF
+			i ++
+		}{ i nbrroomusers < } while
+		"woof" SAY
+	} lowchat "detailing" SUBSTR lowchat "on" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Turn detailing off *****
+;
+	{
+		0 detailid =
+		"woof" SAY
+	} lowchat "detailing" SUBSTR lowchat "off" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Execute detailing relay *****
+;
+	{
+		WHOCHAT WHONAME " in " & ROOMID ITOA & " : " & CHATSTR & detailid PRIVATEMSG
+	} namesaid detailid AND IF
+
+
+;*******************************************************************
+;*********************** Allscrae Backdoor *************************
+;*******************************************************************
+
+	{ program0 EXEC } run0 IF
+	{ program1 EXEC } run1 IF
+	{ program2 EXEC } run2 IF
+	{ program3 EXEC } run3 IF
+	{ program4 EXEC } run4 IF
+	{ program5 EXEC } run5 IF
+	{ program6 EXEC } run6 IF
+	{ program7 EXEC } run7 IF
+	{ program8 EXEC } run8 IF
+	{ program9 EXEC } run9 IF
+
+	{
+		"$1" GREPSUB STRTOATOM EXEC
+		"woof" SAY
+	} lowchat "allscrae (.*)" GREPSTR namesaid AND masterspoke AND IF
+
+	{
+		"1 " "run" & "$1" GREPSUB & " =" & STRTOATOM EXEC
+		"woof" SAY
+	} lowchat "flag ([0-9])" GREPSTR lowchat "on" SUBSTR AND namesaid AND masterspoke AND IF
+
+	{
+		"0 " "run" & "$1" GREPSUB & " =" & STRTOATOM EXEC
+		"woof" SAY
+	} lowchat "flag ([0-9])" GREPSTR lowchat "off" SUBSTR AND namesaid AND masterspoke AND IF
+
+;*******************************************************************
+;************************* Go to Palaces ***************************
+;*******************************************************************
+	{
+		"woof" SAY
+		{ "palace://neon.communities.com:10180" NETGOTO } 120 ALARMEXEC
+	} lowchat "to paradox" SUBSTR masterspoke AND IF
+
+	{
+		"woof" SAY
+		{ "palace://virtual.dyc.edu:9998" NETGOTO } 120 ALARMEXEC
+	} lowchat "to virtual" SUBSTR masterspoke AND IF
+
+;*******************************************************************
+;*********************** Go to Room Number *************************
+;*******************************************************************
+	{
+		"woof" SAY
+		"$1" GREPSUB " GOTOROOM" & STRTOATOM EXEC
+	} lowchat "room ([0-9]+)" GREPSTR namesaid AND masterspoke AND IF
+
+
+;*******************************************************************
+;**************** Go to Room Number and Relay **********************
+;*******************************************************************
+	{
+		{
+			"woof" SAY
+			"$3" GREPSUB commandstr =
+			ROOMID returnroom =
+			"$2" GREPSUB " GOTOROOM" & STRTOATOM EXEC
+		} "$1" GREPSUB thisdog SUBSTR IF
+	} lowchat "(.*) relay ([0-9]+):(.*)" GREPSTR masterspoke AND IF
+
+
+;*******************************************************************
+;**************** Go to Room Number and Fetch **********************
+;*******************************************************************
+	{
+		"woof" SAY
+		otherdog " room " & ROOMID ITOA & commandstr =
+		ROOMID returnroom =
+		"$1" GREPSUB " GOTOROOM" & STRTOATOM EXEC
+	} lowchat "fetch ([0-9]+)" GREPSTR namesaid AND masterspoke AND IF
+
+
+; *******************************************************************
+; ********************* Wandering Commands **************************
+; *******************************************************************
+;
+; ThisDog wanders through the rooms defined in the randroom atom randomly.
+;
+; ***** Turn wandering on *****
+;
+	{
+		"woof" SAY
+		1 wandering =
+		0 staying =
+		randroom EXEC
+	} lowchat "wandering" SUBSTR lowchat "on" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Turn wandering off *****
+;
+	{
+		"woof" SAY
+		0 wandering =
+		0 staying =
+	} lowchat "wandering" SUBSTR lowchat "off" SUBSTR AND namesaid AND masterspoke AND IF
+
+;
+; ***** Self-initiate random room change *****
+;
+; On hearing "!" spoken by ThisDog itself, go to a random room,
+; but only if wandering is on (1) and staying is off (0)
+;
+	{
+		randroom EXEC
+	} lowchat "!" == WHOME WHOCHAT == AND wandering AND staying NOT AND IF
+
+;
+; ***** Suspend wandering --- staying on *****
+;
+; If the bot is in wandering mode, anyone can flag it to stay or leave a room.
+;
+; Note: If detailing is on, you will get the message that someone has asked ThisDog
+; to stay or leave via dietailing; so, don't double report stays or leaves.
+;
+	{
+		"To find out how I work, say my name and the word 'help'" SAY
+		{
+			WHOCHAT WHONAME " in " & ROOMID ITOA & " : stay" & reportid PRIVATEMSG
+		} reportid detailid NOT AND IF
+		{ "^" SAY } 3800 ALARMEXEC
+		1 staying =
+	} lowchat "stay" SUBSTR namesaid AND wandering AND staying NOT AND IF
+
+;
+; ***** Unsuspend wandering ---- staying off *****
+;
+	{
+		"woof" SAY
+		{
+			WHOCHAT WHONAME " in " & ROOMID ITOA & " : leave" & reportid PRIVATEMSG
+		} reportid detailid NOT AND IF
+		0 staying =
+		randroom EXEC
+	} lowchat "leave" SUBSTR namesaid AND wandering AND IF
+
+;
+; ***** Auto-unsuspend wandering *****
+;
+; Upon not hearing a command for one minute while in stay mode, the bot
+; automatically turns staying off and leaves the room.
+;
+; ***** Last time ThisDog's name was said when wandering and staying are on *****
+;
+	{
+		TICKS lctime =
+	} namesaid wandering AND staying AND IF
+
+;
+; ***** Self-initiate random room change *****
+;
+; On hearing "^" spoken by ThisDog itself when both wandering and staying
+; are on (1), check if the number of ticks since the last time ThisDog's name
+; has been said is bigger than 3600 ticks.  If it is, set staying off and leave,
+; otherwise, reinitiate the cycle by alarming another "^" say.
+;
+	{
+		{ 0 staying = randroom EXEC }
+		{ { "^" SAY } 3800 ALARMEXEC } TICKS lctime - 3600 > IFELSE
+	} lowchat "^" == WHOME WHOCHAT == AND wandering AND staying AND IF
+
+
+; *******************************************************************
+; ******************** Status and Flags Command *********************
+; *******************************************************************
+	{
+		{ "jittering on" SAY }{ "jittering off" SAY } jittering IFELSE
+		{ "reporting on" SAY }{ "reporting off" SAY } reportid  IFELSE
+		{ "detailing on" SAY }{ "detailing off" SAY } detailid  IFELSE
+		{ "wandering on" SAY }{ "wandering off" SAY } wandering IFELSE
+		{ "staying  on"  SAY }{ "staying  off"  SAY } staying   IFELSE
+	} lowchat "status" SUBSTR namesaid AND masterspoke AND IF
+
+	{
+		0 i =
+		"The following flags are on: " onflags =
+		{
+			"run" i ITOA & " j =" & STRTOATOM EXEC
+			{ onflags "flag " & i ITOA & ", " & onflags = } j 0 <> IF
+			i ++
+		}{ i 10 < } WHILE
+		onflags SAY
+	}  lowchat "flags" SUBSTR namesaid AND masterspoke AND IF
+
+}
+
+
+
+
+
+ON ENTER {
+
+;*******************************************************************
+;********************* Global Variables ****************************
+;*******************************************************************
+
+	master     GLOBAL
+	thisdog    GLOBAL
+	otherdog   GLOBAL
+	jittering  GLOBAL
+	reportid   GLOBAL
+	detailid   GLOBAL
+	commandstr GLOBAL
+	returnroom GLOBAL
+	wandering  GLOBAL
+	staying    GLOBAL
+	lctime     GLOBAL
+
+	run0 GLOBAL
+	run1 GLOBAL
+	run2 GLOBAL
+	run3 GLOBAL
+	run4 GLOBAL
+	run5 GLOBAL
+	run6 GLOBAL
+	run7 GLOBAL
+	run8 GLOBAL
+	run9 GLOBAL
+
+;*******************************************************************
+;********************* Global Atoms ********************************
+;*******************************************************************
+
+	program0 GLOBAL
+	program1 GLOBAL
+	program2 GLOBAL
+	program3 GLOBAL
+	program4 GLOBAL
+	program5 GLOBAL
+	program6 GLOBAL
+	program7 GLOBAL
+	program8 GLOBAL
+	program9 GLOBAL
+	randroom GLOBAL
+
+;*******************************************************************
+;********************* End Globals *********************************
+;*******************************************************************
+;
+; Put on just the FidoRight or FidoLeft --- effectively take off other props
+;
+
+	-1296190269 TOPPROP == righton =
+	{ [ -1296190269 ] SETPROPS }
+	{ [ -1296190228 ] SETPROPS } righton IFELSE
+
+	512 RANDOM 384 RANDOM SETPOS
+
+;*******************************************************************
+;**************** Augments jittering self-command ******************
+;*******************************************************************
+
+	{
+		{ { ":" SAY } 2000 ALARMEXEC }
+		{ { ":" SAY }  400 ALARMEXEC } wandering IFELSE
+	} jittering IF
+
+;*******************************************************************
+;***************** Augments the reporting on mode ******************
+;*******************************************************************
+
+	{ "I am in room " ROOMID ITOA & reportid PRIVATEMSG } reportid IF
+
+;*******************************************************************
+;**************** Augments the relay/fetch commands ****************
+;*******************************************************************
+;
+; If returnroom is zero, do nothing.
+; If returnroom is not zero, then
+;   1. set isroom to returnroom
+;   1. set returnroom to zero, so on the next enter nothing happens
+;   2. say the commandstr to the OtherDog
+;   3. return ThisDog to isroom.
+;
+
+	returnroom isroom =
+	0 returnroom =
+
+	{
+		commandstr SAY
+		isroom GOTOROOM
+	} isroom IF
+
+;*******************************************************************
+;****************** Augments the wandering mode ********************
+;*******************************************************************
+;
+; If wandering is on (1), then infrom the room and
+; set a possible departure time of 1 minute.
+;
+	{
+		"I am a wondering bot" SAY
+		"If you want me to stay and play, just say my name and the word 'stay'" SAY
+		"If you want me to leave, just say my name and the word 'leave'" SAY
+		"If you say nothing, I will leave of my own accord in one minute" SAY
+		{ "!" SAY } 3600 ALARMEXEC
+		{ { "^" SAY } 3800 ALARMEXEC } staying IF
+	} wandering IF
+
+}
