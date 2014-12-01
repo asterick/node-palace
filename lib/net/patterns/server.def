@@ -13,6 +13,32 @@ body switch tag {
 			_null uint8
 		}
 
+	case 'xwis' :
+		struct {
+			type const = "EncryptedWhisper"
+
+			_length uint16
+			message encoded string(Windows-1252)[_length-3]
+			_null uint8
+		}
+
+	case 'sinf' :
+		struct {
+			type const = "ServerInformation"
+
+			flags uint32
+			_length uint8
+			title encoded string(Windows-1252)[_length]
+		}
+
+	case 'talk' :
+		struct {
+			type const = "Talk"
+
+			message encoded string(Windows-1252)[size - 1]
+			_null uint8
+		}
+
 	// HTTP Asset Location
 	case 'HTTP':
 		struct {
@@ -25,7 +51,7 @@ body switch tag {
 	// User Listing
 	case 'uLst' :
 		struct {
-			type const = "UserListing"
+			type const = "GlobalUserListing"
 			users struct align 4 {
 				id uint32
 				flags uint16
@@ -39,7 +65,7 @@ body switch tag {
 	// Room Listing
 	case 'rLst' :
 		struct {
-			type const = "RoomListing"
+			type const = "GlobalRoomListing"
 
 			rooms struct align 4 {
 
@@ -49,6 +75,97 @@ body switch tag {
 				_length uint8 = sizeof(title)
 				title string(Windows-1252)[_length]
 			}[target]
+		}
+
+	case 'qAst' :
+		struct {
+			type const = "AssetQuery"
+
+			type uint32
+			id uint32
+			crc uint32
+		}
+
+	case 'log ' :
+		struct {
+			type const = "UserLogin"
+
+			population uint32
+		}
+
+	case 'uLoc':
+		struct {
+			type const = "UserLocation"
+
+			y uint16;
+			x uint16;
+		}
+
+	case 'usrP' :
+		struct {
+			type const = "UserProp"
+
+			_count uint32
+
+			props struct{
+				id uint32
+				crc uint32
+			}[_count];
+		}
+
+	case 'rprs' :
+		struct {
+			type const = "UserList"
+
+			users struct {
+
+				id uint32
+				y uint16
+				x uint16
+
+				props struct {
+					id uint32
+					crc uint32
+				}[9]
+
+				room uint16
+				face uint16
+				color uint16
+
+				_null uint32
+
+				num_props uint16
+
+				_nameLength uint8
+				name string(WIndows-1252)[_nameLength]
+				_padding uint8[31 - _nameLength]
+			}[target]
+		}
+
+	case 'nprs' :
+		struct {
+			type const = "NewUser"
+
+			id uint32
+			y uint16
+			x uint16
+
+			props struct {
+				id uint32
+				crc uint32
+			}[9]
+
+			room uint16
+			face uint16
+			color uint16
+
+			_null uint32
+
+			num_props uint16
+
+			_nameLength uint8
+			name string(WIndows-1252)[_nameLength]
+			_padding uint8[31 - _nameLength]
 		}
 
 	default :

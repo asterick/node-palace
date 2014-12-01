@@ -3,7 +3,22 @@ _size uint32 = sizeof(body);
 target uint32;
 
 body switch tag {
+	case 'navR' :
+		struct {
+			type const = "EnterRoom"
+
+			id uint16
+		}
+
 	// Encoded message
+	case 'smsg' :
+		struct {
+			type const = "SuperUserMessage"
+
+			message encoded string(Windows-1252)[_size - 1]
+			_null uint8
+		}
+
 	case 'xtlk' :
 		struct {
 			type const = "EncryptedTalk"
@@ -13,7 +28,85 @@ body switch tag {
 			_null uint8
 		}
 
+	case 'xwis' :
+		struct {
+			type const = "EncryptedWhisper"
+
+			user uint32
+			_length uint16
+			message encoded string(Windows-1252)[_length-3]
+			_null uint8
+		}
+
+	case 'rLst' :
+		struct {
+			type const = "RoomListRequest"
+		}
+
+	case 'uLst' :
+		struct {
+			type const = "UserListRequest"
+		}
+
+	case 'usrP' :
+		struct {
+			type const = "UserProp"
+
+			_count uint32
+
+			props struct{
+				id uint32
+				crc uint32
+			}[_count];
+		}
+
+	case 'gmsg':
+		struct {
+			type const = "GlobalMessage"
+
+			message string(Windows-1252)[_size-1]
+			_null uint8
+		}
+
+	case 'rmsg':
+		struct {
+			type const = "RoomMessage"
+			message string(Windows-1252)[_size-1]
+			_null uint8
+		}
+
+	case 'qAst' :
+		struct {
+			type const = "AssetQuery"
+
+			type uint32
+			id uint32
+			crc uint32
+		}
+
 	// User Location
+	case 'usrN':
+		struct {
+			type const = "UserName"
+
+			_length uint8
+			message string(Windows-1252)[_length]
+		}
+
+	case 'usrC':
+		struct {
+			type const = "UserColor"
+
+			color uint16
+		}
+
+	case 'usrF':
+		struct {
+			type const = "UserFace"
+
+			face uint16
+		}
+
 	case 'uLoc':
 		struct {
 			type const = "UserLocation"
