@@ -76,11 +76,9 @@ PacketStream.prototype.drain = function () {
 
 		return true;
 	} catch (e) {
-		/*
 		console.log("OUT OF SYNC ERROR:", this._target);
 		console.log(e.message);
 		dumpHex(this._buffer);
-		*/
 
 		// Incomplete message (or bad definition)
 		return false;

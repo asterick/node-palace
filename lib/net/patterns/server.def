@@ -35,7 +35,7 @@ body switch tag {
 		struct {
 			type const = "Talk"
 
-			message encoded string(Windows-1252)[size - 1]
+			message encoded string(Windows-1252)[_size - 1]
 			_null uint8
 		}
 
