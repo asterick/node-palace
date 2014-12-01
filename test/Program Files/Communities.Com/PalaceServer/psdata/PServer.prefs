@@ -1,0 +1,21 @@
+; Server Prefs
+;
+SERVERNAME "Palace Planet Template"
+WIZARDPASSWORD "\0Cby.\8BD\8FE"
+GODPASSWORD "5\8DT\85E"
+PERMISSIONS 0x87F     
+DEATHPENALTY 120
+MAXOCCUPANCY 10000
+ROOMOCCUPANCY 24
+MINFLOODEVENTS 300
+PURGEPROPDAYS 21
+MAXSESSIONID 10000
+PICFOLDER "C:\\Program Files\\Communities.com\\PalaceServer\\palace\\media\\"
+SYSOP "Kryton"
+HTTP_URL "http://[currentIPAddress]:9990/palace/media/"
+AVATAR_URL "http://[currentIPAddress]:9990/palace/avatars/"
+MACHINETYPE "Windows 5.1, Service Pack 2. Processor: pentium processor."
+JAVACLIENTWEBPAGE "palace://localhost"
+ROOMSFILE "palaceplanet-template.pat"
+
+END

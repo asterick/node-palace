@@ -1,0 +1,30 @@
+tag reversed string(ascii)[4];
+_size uint32 = sizeof(body);
+target uint32;
+
+body switch tag {
+	// Encoded message
+	case 'xtlk' :
+		struct {
+			type const = "EncryptedTalk"
+
+			_length uint16
+			message encoded string(Windows-1252)[_length-3]
+			_null uint8
+		}
+
+	// User Location
+	case 'uLoc':
+		struct {
+			type const = "UserLocation"
+
+			y uint16;
+			x uint16;
+		}
+
+	default :
+		struct {
+			type const = "RawData"
+			data uint8[_size]
+		}
+}

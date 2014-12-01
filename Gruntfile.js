@@ -3,10 +3,11 @@ module.exports = function(grunt) {
 		browserify: {
 			dev: {
 				files: {
-					'build/sequence.js': ['src/index.js']
+					'build/palace.js': ['lib/index.js']
 				},
 				options: {
 					transform: [
+						require("./tasks/definitions.js").transform,
 						[ require("browserify-pegjs"), { cache: true } ]
 					],
 					browserifyOptions: { debug: true },
@@ -15,16 +16,21 @@ module.exports = function(grunt) {
 			}
 		},
 
+		jshint: {
+			all: ['Gruntfile.js', 'lib/**/*.js', 'tasks/**/*.js', 'test/**/*.js']
+		},
+
 		uglify: {
 			my_target: {
 				files: {
-					'build/sequence.min.js': 'build/sequence.js'
+					'build/palace.min.js': 'build/palace.js'
 				}
 			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-browserify');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 
 	grunt.registerTask("publish", ["browserify", "uglify"]);

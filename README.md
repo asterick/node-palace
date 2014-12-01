@@ -1,4 +1,6 @@
-sequence
-========
+node-palace
+===========
 
-A middleware language for node.js for producing verilog
+Simple implementation of The Palace client / server architecture in node.js
+
+

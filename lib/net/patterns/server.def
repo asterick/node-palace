@@ -1,0 +1,59 @@
+tag reversed string(ascii)[4];
+_size uint32 = sizeof(body);
+target uint32;
+
+body switch tag {
+	// Encoded message
+	case 'xtlk' :
+		struct {
+			type const = "EncryptedTalk"
+
+			_length uint16
+			message encoded string(Windows-1252)[_length-3]
+			_null uint8
+		}
+
+	// HTTP Asset Location
+	case 'HTTP':
+		struct {
+			type const = "AssetLocation"
+
+			url string(ascii)[_size - 1]
+			_null uint8
+		}
+
+	// User Listing
+	case 'uLst' :
+		struct {
+			type const = "UserListing"
+			users struct align 4 {
+				id uint32
+				flags uint16
+				room uint16
+
+				_length uint8
+				name string(Windows-1252)[_length]
+			}[target]
+		}
+
+	// Room Listing
+	case 'rLst' :
+		struct {
+			type const = "RoomListing"
+
+			rooms struct align 4 {
+
+				id uint32
+				flags uint16
+				users uint16
+				_length uint8 = sizeof(title)
+				title string(Windows-1252)[_length]
+			}[target]
+		}
+
+	default :
+		struct {
+			type const = "RawData"
+			data uint8[_size]
+		}
+}
