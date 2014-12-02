@@ -28,7 +28,7 @@ body switch tag {
 
 			flags uint32
 			_length uint8
-			title encoded string(Windows-1252)[_length]
+			title string(Windows-1252)[_length]
 		}
 
 	case 'talk' :

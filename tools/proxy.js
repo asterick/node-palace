@@ -54,16 +54,38 @@ PacketStream.prototype.write = function (data) {
 
 	this._buffer = ab;
 
-	while(this.drain()) ;
+	var packet;
+	while(packet = this.nextPacket()) {
+		this.parse(packet);
+	}
 }
 
-PacketStream.prototype.drain = function () {
-	// Incomplete header
-	if (this._buffer.length < 12) { return false; }
+// This function is not entirely nessessary, but
+// it stops the proxy from desyncronizing when
+// the definition is wrong
+
+PacketStream.prototype.nextPacket = function () {
+	if (this._buffer.length < 12) {
+		return null;
+	}
+
+	var dv = new DataView(this._buffer.buffer);
+		length = dv.getUint32(4, true) + 12;
+
+	if (length > this._buffer.length) {
+		return null;
+	}
+
+	var slice = this._buffer.buffer.slice(0, length);
+	this._buffer = new Uint8Array(this._buffer.buffer.slice(length));
+
+	return new Uint8Array(slice);
+}
+
+PacketStream.prototype.parse = function (buffer) {
 
 	try {
-		var stream = new Stream(this._buffer),
-			packet = this._definitions.decode(stream);
+		var packet = this._definitions.decode(new Stream(buffer));
 
 		if (packet.body.type === "RawData") {
 			console.log(this._target + ":", "unknown packet " + packet.tag + "(" + packet.target + ")");
@@ -71,17 +93,9 @@ PacketStream.prototype.drain = function () {
 		} else {
 			console.log(this._target + ":", JSON.stringify(packet,null,4));
 		}
-
-		this._buffer = new Uint8Array(this._buffer.buffer.slice(stream.tell()));
-
-		return true;
 	} catch (e) {
-		console.log("OUT OF SYNC ERROR:", this._target);
-		console.log(e.message);
-		dumpHex(this._buffer);
-
-		// Incomplete message (or bad definition)
-		return false;
+		console.log("Decode Error:", e.message);
+		dumpHex(buffer);
 	}
 }
 
